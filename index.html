@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>班级赛车 - 任务争霸赛</title>
-    <link rel="icon" href="/assets/2609927219.webp">
+    <link rel="icon" href="https://pic.myla.eu.org/file/FzkqLrPo.webp">
 
     <style>
         :root {
@@ -20,16 +20,15 @@
             
             --start-pos: 160px; 
             
-            /* === 动态变量区 (由JS控制) === */
-            /* 赛道变量 */
+            /* 动态变量 */
             --car-size: 4.5rem; 
             --lane-margin: 8px;
             --label-scale: 1;
             
             /* 积分榜变量 */
-            --score-gap: 6px;   /* 条目间距 */
-            --score-pad: 12px;  /* 条目内边距 */
-            --score-font: 14px; /* 条目字号 */
+            --score-gap: 6px; 
+            --score-pad: 12px;
+            --score-font: 14px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: var(--font-main); }
@@ -48,7 +47,7 @@
         header {
             background: var(--card-bg); padding: 10px 40px; border-radius: 12px; box-shadow: var(--shadow);
             margin-bottom: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
-            height: 60px; /* 进一步压缩标题高度，给内容留空间 */
+            height: 60px;
         }
         header::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--primary); }
         
@@ -140,7 +139,7 @@
         .settings-panel { padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee; }
         .input-group { margin-bottom: 8px; }
         .input-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }
-        .input-group input { width: 100%; padding: 8px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; outline: none; transition: 0.3s; background: #f9f9f9; color: var(--text-main); font-weight: 600; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; outline: none; transition: 0.3s; background: #f9f9f9; color: var(--text-main); font-weight: 600; }
         .input-group input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
         .btn-reset { width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; box-shadow: 0 4px 0 var(--primary-dark); }
         .btn-reset:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--primary-dark); }
@@ -148,19 +147,13 @@
 
         .tip-text { margin-top: 6px; font-size: 11px; color: #95a5a6; text-align: center; background: #f0f2f5; padding: 4px; border-radius: 4px; }
 
-        /* 积分榜容器：虽然开了auto，但我们会通过压缩内容尽量避免滚动条出现 */
         .scoreboard { flex: 1; overflow-y: auto; overflow-x: hidden; }
         .scoreboard h3 { font-size: 15px; color: var(--text-main); margin-bottom: 8px; font-weight: 800; border-left: 4px solid var(--primary); padding-left: 10px; }
         
-        /* 积分条目：使用动态变量 */
         .score-item { 
             display: flex; align-items: center; justify-content: space-between; 
             background: #f8f9fa; border-radius: 6px; transition: 0.3s; border: 2px solid transparent; 
-            
-            /* 动态应用 */
-            margin-bottom: var(--score-gap); 
-            padding: var(--score-pad);
-            font-size: var(--score-font);
+            margin-bottom: var(--score-gap); padding: var(--score-pad); font-size: var(--score-font);
         }
         
         .rank { width: 22px; font-weight: bold; color: #bbb; text-align: center; }
@@ -187,7 +180,7 @@
 <body>
 
     <header>
-        <img src="/assets/2609927219.webp" alt="Race Logo" class="header-logo">
+        <img src="https://pic.myla.eu.org/file/FzkqLrPo.webp" alt="Race Logo" class="header-logo">
         <h1>无论走多远 别忘了为何而出发</h1>
     </header>
 
@@ -240,7 +233,7 @@
         const START_OFFSET = 160; 
 
         window.onload = function() {
-            const saved = sessionStorage.getItem('race_v12_final');
+            const saved = sessionStorage.getItem('race_v13_final');
             if(saved) scoreHistory = JSON.parse(saved);
             resetRace(false);
             
@@ -251,7 +244,7 @@
             if(forceClear) {
                 if(!confirm("确定要重置吗？所有积分清零。")) return;
                 scoreHistory = {}; 
-                sessionStorage.removeItem('race_v12_final');
+                sessionStorage.removeItem('race_v13_final');
             }
 
             const groupsStr = document.getElementById('groupsInput').value;
@@ -268,43 +261,36 @@
             
             const teamCount = names.length;
             
-            // === 1. 左侧赛道自适应逻辑 ===
+            // 自适应逻辑
             let newCarSize = 4.5;
             let newMargin = 8;
             let newLabelScale = 1;
-
             if (teamCount > 6) {
                 newCarSize = Math.max(1.5, 4.5 - (teamCount - 6) * 0.25); 
                 newMargin = Math.max(1, 8 - (teamCount - 6) * 0.6); 
                 newLabelScale = Math.max(0.6, 1 - (teamCount - 6) * 0.03); 
             }
-
-            // === 2. 右侧积分榜自适应逻辑 ===
-            // 目标：队伍多时，积分条变薄、间距变小、字体变小
-            let newScoreGap = 6;  // 默认间距
-            let newScorePad = 12; // 默认内边距
-            let newScoreFont = 14; // 默认字体
-
+            let newScoreGap = 6;
+            let newScorePad = 12;
+            let newScoreFont = 14;
             if (teamCount > 8) {
-                newScoreGap = Math.max(2, 6 - (teamCount - 8) * 0.5); // 最小2px间距
-                newScorePad = Math.max(5, 12 - (teamCount - 8) * 0.6); // 最小5px内边距
-                newScoreFont = Math.max(12, 14 - (teamCount - 8) * 0.2); // 最小12px字体
+                newScoreGap = Math.max(2, 6 - (teamCount - 8) * 0.5);
+                newScorePad = Math.max(5, 12 - (teamCount - 8) * 0.6);
+                newScoreFont = Math.max(12, 14 - (teamCount - 8) * 0.2);
             }
 
-            // 应用所有变量
             document.documentElement.style.setProperty('--car-size', `${newCarSize}rem`);
             document.documentElement.style.setProperty('--lane-margin', `${newMargin}px`);
             document.documentElement.style.setProperty('--label-scale', newLabelScale);
-            
             document.documentElement.style.setProperty('--score-gap', `${newScoreGap}px`);
             document.documentElement.style.setProperty('--score-pad', `${newScorePad}px`);
             document.documentElement.style.setProperty('--score-font', `${newScoreFont}px`);
-
 
             groups = names.map((name, index) => ({
                 id: index,
                 name: name,
                 currentStep: 0, 
+                bonusAwarded: 0, // 新增：记录该组当前获得的额外奖励分
                 emoji: carEmojis[index % carEmojis.length]
             }));
 
@@ -354,18 +340,29 @@
             }
         }
 
+        // === 核心修复：回退时扣除额外奖励 ===
         function moveCarBackward(id) {
             const group = groups.find(g => g.id === id);
             
             if (group.currentStep > 0) {
-                if (!isRaceActive) {
-                    isRaceActive = true;
-                    document.getElementById('winnerModal').style.display = 'none';
+                // 如果是从终点回退
+                if (group.currentStep === totalSteps) {
+                    // 如果有额外奖励记录，先扣掉
+                    if (group.bonusAwarded > 0) {
+                        addScore(group.name, -group.bonusAwarded);
+                        group.bonusAwarded = 0; // 清除记录
+                    }
+                    
+                    // 恢复比赛状态（如果是因为获胜结束了比赛）
+                    if (!isRaceActive) {
+                        isRaceActive = true;
+                        document.getElementById('winnerModal').style.display = 'none';
+                    }
                 }
                 
                 group.currentStep--;
                 updateCarPosition(group);
-                addScore(group.name, -1);
+                addScore(group.name, -1); // 扣除常规步数分
             }
         }
 
@@ -412,13 +409,15 @@
             document.getElementById('winnerModal').style.display = 'none';
             if (currentWinner && bonusPoints > 0) {
                 addScore(currentWinner.name, bonusPoints);
+                // 关键：记录该组获得的额外分，以便回退
+                currentWinner.bonusAwarded = bonusPoints;
                 bonusPoints = 0;
             }
         }
 
         function addScore(name, points) {
             scoreHistory[name] += points;
-            sessionStorage.setItem('race_v12_final', JSON.stringify(scoreHistory));
+            sessionStorage.setItem('race_v13_final', JSON.stringify(scoreHistory));
             renderScoreboard(name);
         }
 
@@ -447,5 +446,4 @@
         window.onresize = () => groups.forEach(g => updateCarPosition(g));
     </script>
 </body>
-
 </html>
